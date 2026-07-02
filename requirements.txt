@@ -1,0 +1,20 @@
+# PDF-ScribbleAI Backend — Python Dependencies
+# مولَّد من pyproject.toml
+# للتثبيت: pip install -r requirements.txt
+# أو بـ UV (أسرع): uv pip install -r requirements.txt
+
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+pymupdf==1.25.1
+pydantic==2.10.4
+pydantic-settings==2.7.0
+google-generativeai==0.8.3
+python-dotenv==1.0.1
+aiofiles==24.1.0
+arabic-reshaper==3.0.0
+python-bidi==0.6.6
+
+# Dev dependencies (اختبارات فقط)
+# pytest>=8.3.0
+# httpx>=0.28.0

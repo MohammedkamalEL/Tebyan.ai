@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ENV=${ENV:-development}
+      - MAX_PDF_PAGES=${MAX_PDF_PAGES:-50}
+      - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-20}
+    volumes:
+      # storage خارج الـ container — البيانات لا تُحذف عند restart
+      - ./storage:/app/storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
