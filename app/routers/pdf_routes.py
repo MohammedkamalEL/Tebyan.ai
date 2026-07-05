@@ -20,7 +20,7 @@ import uuid
 from pathlib import Path
 
 import fitz
-from google.generativeai.types import GenerationException
+from openai import APIConnectionError, APIStatusError, AuthenticationError
 from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
@@ -147,12 +147,17 @@ async def process_pdf(
     t0 = time.perf_counter()
     try:
         annotation_plan = await asyncio.to_thread(generate_annotation_plan, document)
-    except GenerationException as exc:
-        log.error("❌ Gemini API: %s", exc)
-        raise HTTPException(status_code=502, detail=f"خطأ من Gemini API: {exc}")
+    except AuthenticationError:
+        log.error("❌ OpenRouter API: مفتاح غير صحيح")
+        raise HTTPException(status_code=502, detail="مفتاح OpenRouter API غير صحيح")
+    except APIConnectionError as exc:
+        log.error("❌ OpenRouter API: فشل الاتصال: %s", exc)
+        raise HTTPException(status_code=502, detail="تعذّر الاتصال بـ OpenRouter API")
+    except APIStatusError as exc:
+        log.error("❌ OpenRouter API: status=%d", exc.status_code)
+        raise HTTPException(status_code=502, detail=f"خطأ من OpenRouter API: {exc.status_code}")
     except RuntimeError as exc:
-        # JSON غير صالح من الموديل — نادر مع JSON mode لكن ممكن
-        log.error("❌ Gemini JSON parse error: %s", exc)
+        log.error("❌ JSON parse error: %s", exc)
         raise HTTPException(status_code=502, detail=str(exc))
 
     ai_ms = (time.perf_counter() - t0) * 1000
@@ -215,7 +220,7 @@ async def pipeline_health() -> dict:
     checks["output_dir"]  = "✅" if Path(settings.OUTPUT_DIR).exists()  else "❌ مجلد outputs مفقود"
 
     # فحص مفتاح الـ API
-    checks["gemini_key"] = "✅ موجود" if settings.GEMINI_API_KEY else "❌ GEMINI_API_KEY فارغ"
+    checks["openrouter_key"] = "✅ موجود" if settings.OPENROUTER_API_KEY else "❌ OPENROUTER_API_KEY فارغ"
 
     all_ok = all(v.startswith("✅") for v in checks.values())
 

@@ -11,9 +11,9 @@ class Settings(BaseSettings):
 
     ENV: str = "development"
 
-    # AI Provider — Gemini 1.5 Flash (مجاني)
-    # احصل على مفتاحك من: https://aistudio.google.com/app/apikey
-    GEMINI_API_KEY: str = ""
+    # AI Provider — OpenRouter (موديلات مجانية متعددة)
+    # احصل على مفتاحك من: https://openrouter.ai/ → Keys → Create Key
+    OPENROUTER_API_KEY: str = ""
 
     # حدود الملفات
     MAX_PDF_PAGES: int = 50
